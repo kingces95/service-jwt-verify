@@ -1,0 +1,8 @@
+.*
+*.zip
+*sa.json
+package-template.json
+google-cloud-sdk
+infra
+tests
+terraform

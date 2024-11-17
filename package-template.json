@@ -1,0 +1,38 @@
+{
+  "name": "service-jwt-signature-verification",
+  "version": "1.0.0",
+  "description": "A Google Cloud Function for JWT signature verification",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "npm run test-unit && npm run test-env",
+    "test-unit": "mocha tests/unit/**/*.test.js",
+    "test-env": "mocha tests/integration/**/*.test.js",
+    "generate-keys": "node tests/scripts/generate-keys.js",
+    "generate-jwt": "node tests/scripts/generate-jwt.js",
+    "pack-ls": "npm pack --dry-run --json | jq -r '.[0].files[].path'",
+    "pack": "cat .package | zip -@ bin/${G_ARCHIVE_NAME}",
+    "archive-push": "gsutil cp ./bin/${G_ARCHIVE_OBJECT} ${G_ORG_BUCKET_URL}",
+    "archive-ls": "gsutil ls ${G_ORG_BUCKET_URL}",
+    "archive-rm": "gsutil ls ${G_ARCHIVE_URL}",
+    "deploy": "terraform -chdir=${TERRA_DIR} apply -auto-approve",
+    "deploy-preview": "terraform -chdir=${TERRA_DIR} plan",
+    "deploy-ls": "terraform -chdir=${TERRA_DIR} state list",
+    "deploy-show": "terraform -chdir=${TERRA_DIR} show",
+    "deploy-rm": "terraform -chdir=${TERRA_DIR} destroy -auto-approve"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "axios": "^1.7.7",
+    "chai": "^4.3.6",
+    "dotenv": "^16.4.5",
+    "mocha": "^10.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Chris King",
+  "license": "MIT"
+}
