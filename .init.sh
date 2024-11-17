@@ -11,11 +11,6 @@ export KEYS_DIR="$TEST_DIR/keys"
 export JWTS_DIR="$TEST_DIR/jwts"
 export SCRIPTS_DIR="$TEST_DIR/scripts"
 
-export PACKAGE_ZIP="$BIN_DIR/package.zip"
-
-# Install npm dependencies
-npm install --no-package-lock --silent
-
 # Check if gcloud is installed
 if ! command -v gcloud &> /dev/null; then
   echo "Installing Google Cloud SDK quietly..."
@@ -23,6 +18,18 @@ if ! command -v gcloud &> /dev/null; then
   exec -l $SHELL
   gcloud init --quiet
   echo "Google Cloud SDK installed and initialized."
+fi
+
+# Check if gcloud is authorized
+if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" &> /dev/null; then
+  echo "No active gcloud account found. Please log in using 'gcloud auth login'."
+  gcloud auth login
+fi
+
+# Check if application-default credentials are configured
+if ! gcloud auth application-default print-access-token &> /dev/null; then
+  echo "Application-default credentials are not configured. Running 'gcloud auth application-default login'..."
+  gcloud auth application-default login
 fi
 
 # Google Cloud Environment
@@ -45,6 +52,10 @@ export G_ARCHIVE_OBJECT="${G_ARCHIVE_NAME}.zip"
 export G_ARCHIVE_URL="${G_ORG_BUCKET_URL}/${G_ARCHIVE_OBJECT}"
 export G_TFORM_STORAGE_SA="terraform-storage-sa"
 export G_TFORM_DEPLOYMENT_SA="terraform-deploy-sa"
+
+# Set gcloud configuration
+gcloud config set project ${G_PROJECT_ID} --quiet &> /dev/null
+gcloud config set compute/region ${G_REGION} --quiet &> /dev/null
 
 export G_CLOUD_DNS_ZONE="$(gcloud dns managed-zones list --format="value(name)" --quiet || echo "service-zone")"
 export G_CLOUD_FUNCTION_NAME="verify-jwt-signature"
@@ -70,6 +81,35 @@ export TFORM_SSL_CERT_NAME="${G_CLOUD_SSL_CERT_NAME//-/_}"
 export TFORM_FORWARDING_RULE_NAME="${G_CLOUD_FORWARDING_RULE_NAME//-/_}"
 export TFORM_DNS_RECORD_NAME="service_dns_record"
 export TFORM_STATIC_IP_NAME="service_static_ip"
+
+# Check if Terraform is installed
+if ! command -v terraform &> /dev/null; then
+  echo "Terraform not found. Installing..."
+  
+  # Create a temporary directory
+  TMP_DIR=$(mktemp -d)
+  
+  # Fetch the latest version of Terraform
+  LATEST_VERSION=$(curl -fsSL https://api.github.com/repos/hashicorp/terraform/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/^v//')
+  ZIP_URL="https://releases.hashicorp.com/terraform/${LATEST_VERSION}/terraform_${LATEST_VERSION}_linux_amd64.zip"
+  
+  echo "Downloading Terraform ${LATEST_VERSION}..."
+  curl -fsSL "${ZIP_URL}" -o "${TMP_DIR}/terraform.zip"
+  
+  # Unzip and move to /usr/local/bin
+  echo "Extracting Terraform..."
+  unzip -q "${TMP_DIR}/terraform.zip" -d "${TMP_DIR}"
+  
+  echo "Installing Terraform to /usr/local/bin..."
+  sudo mv "${TMP_DIR}/terraform" /usr/local/bin/
+  sudo chmod +x /usr/local/bin/terraform
+  
+  # Clean up the temporary directory
+  echo "Cleaning up..."
+  rm -rf "${TMP_DIR}"
+  
+  echo "Terraform installed successfully."
+fi
 
 # Function to check and create a service account
 create_service_account() {
@@ -119,9 +159,9 @@ envsubst < ${PROJ_DIR}/package-template.json > ${PROJ_DIR}/package.json
 envsubst < ${INFRA_DIR}/main-template.tf > ${TERRA_DIR}/main.tf
 envsubst < ${INFRA_DIR}/backend-template.tf > ${TERRA_DIR}/backend.tf
 
+# Install npm dependencies
+npm install --no-package-lock --silent
+
 # Package app
 npm run pack-ls --silent > .package
 
-# Set gcloud configuration
-gcloud config set project ${G_PROJECT_ID} --quiet &> /dev/null
-gcloud config set compute/region ${G_REGION} --quiet &> /dev/null
