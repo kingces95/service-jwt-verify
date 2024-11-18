@@ -8,8 +8,8 @@ const { expect } = require('chai');
 // Load environment variables and paths
 const LIVE_FUNCTION_URL = process.env.G_FUNCTION_URL;
 
-const PUBLIC_KEY_PATH = path.join(process.env.KEYS_DIR, 'public_key.pem');
-const JWT_PATH = path.join(process.env.JWTS_DIR, 'generated_jwt.txt');
+const PUBLIC_KEY_PATH = path.join(process.env.JVS_KEYS_DIR, 'public_key.pem');
+const JWT_PATH = path.join(process.env.JVS_JWTS_DIR, 'generated_jwt.txt');
 
 describe('Live JWT Verification Test', () => {
   // Check if the public key and JWT exist

@@ -4,16 +4,16 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 
 // Define the directory where jwt will be saved
-const JWTS_DIR = process.env.KEYS_DIR;
+const JVS_JWTS_DIR = process.env.JVS_KEYS_DIR;
 
-// Ensure JWTS_DIR exists
-if (!fs.existsSync(JWTS_DIR)) {
-  fs.mkdirSync(JWTS_DIR, { recursive: true });
+// Ensure JVS_JWTS_DIR exists
+if (!fs.existsSync(JVS_JWTS_DIR)) {
+  fs.mkdirSync(JVS_JWTS_DIR, { recursive: true });
 }
 
 // Use environment variables for directories
-const privateKeyPath = path.join(process.env.KEYS_DIR, 'private_key.pem');
-const jwtOutputPath = path.join(process.env.JWTS_DIR, 'generated_jwt.txt');
+const privateKeyPath = path.join(process.env.JVS_KEYS_DIR, 'private_key.pem');
+const jwtOutputPath = path.join(process.env.JVS_JWTS_DIR, 'generated_jwt.txt');
 
 // Check for the private key file
 if (!fs.existsSync(privateKeyPath)) {

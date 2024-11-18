@@ -1,8 +1,8 @@
 // Load public and private keys
 const path = require('path');
-const srcPath = process.env.SRC_DIR;
-const privateKeyPath = path.join(process.env.KEYS_DIR, 'private_key.pem');
-const publicKeyPath = path.join(process.env.KEYS_DIR, 'public_key.pem');
+const srcPath = process.env.JVS_SRC_DIR;
+const privateKeyPath = path.join(process.env.JVS_KEYS_DIR, 'private_key.pem');
+const publicKeyPath = path.join(process.env.JVS_KEYS_DIR, 'public_key.pem');
 
 const { expect } = require('chai');
 const { verifyJwtSignature } = require(`${srcPath}/index`);  // Adjust path as needed

@@ -4,16 +4,16 @@ const path = require('path');
 const crypto = require('crypto');
 
 // Define the directory where keys will be saved
-const KEYS_DIR = process.env.KEYS_DIR;
+const JVS_KEYS_DIR = process.env.JVS_KEYS_DIR;
 
-// Ensure KEYS_DIR exists
-if (!fs.existsSync(KEYS_DIR)) {
-  fs.mkdirSync(KEYS_DIR, { recursive: true });
+// Ensure JVS_KEYS_DIR exists
+if (!fs.existsSync(JVS_KEYS_DIR)) {
+  fs.mkdirSync(JVS_KEYS_DIR, { recursive: true });
 }
 
 // Define paths for the keys
-const privateKeyPath = path.join(KEYS_DIR, 'private_key.pem');
-const publicKeyPath = path.join(KEYS_DIR, 'public_key.pem');
+const privateKeyPath = path.join(JVS_KEYS_DIR, 'private_key.pem');
+const publicKeyPath = path.join(JVS_KEYS_DIR, 'public_key.pem');
 
 // Generate an RSA key pair
 crypto.generateKeyPair(
